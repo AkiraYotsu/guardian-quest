@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>⚔️ Guardian Quest RPG</title>
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<canvas id="starsCanvas"></canvas>
+<div id="notif"></div>
+<div id="perfOverlay"></div>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="logo-wrap">
+    <div class="logo">⚔ GUARDIAN QUEST</div>
+    <div class="logo-sub">PIXEL RPG ADVENTURE</div>
+  </div>
+  <div class="auth-box">
+    <div class="auth-tabs">
+      <button class="auth-tab on" id="tabLogin" onclick="swTab('login')">LOGIN</button>
+      <button class="auth-tab"    id="tabReg"   onclick="swTab('reg')">REGISTER</button>
+    </div>
+    <div id="fLogin">
+      <label class="lbl">USERNAME</label>
+      <input id="lu" class="inp" type="text"     placeholder="Enter username" autocomplete="username">
+      <label class="lbl">PASSWORD</label>
+      <input id="lp" class="inp" type="password" placeholder="Enter password" autocomplete="current-password">
+      <button class="btn-main" onclick="doLogin()">▶ ENTER GAME</button>
+      <div id="le" class="err"></div>
+    </div>
+    <div id="fReg" style="display:none">
+      <label class="lbl">USERNAME</label>
+      <input id="ru"  class="inp" type="text"     placeholder="Choose username" autocomplete="username">
+      <label class="lbl">PASSWORD</label>
+      <input id="rp"  class="inp" type="password" placeholder="Choose password" autocomplete="new-password">
+      <label class="lbl">CONFIRM</label>
+      <input id="rp2" class="inp" type="password" placeholder="Confirm password" autocomplete="new-password">
+      <button class="btn-main" onclick="doReg()">▶ CREATE ACCOUNT</button>
+      <div id="re" class="err"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CHAR SELECT ══════════════ -->
+<div id="charScreen" class="screen">
+  <div class="scr-title">⚔ CHOOSE YOUR CLASS ⚔</div>
+  <div class="class-cards" id="classCon"></div>
+
+  <div class="gender-title">SELECT GENDER</div>
+  <div class="gender-cards" id="genderCon"></div>
+
+  <input id="cname" class="name-inp" type="text" placeholder="HERO NAME" maxlength="16">
+  <div id="cerr" class="err"></div>
+  <button class="btn-main" style="max-width:200px;position:relative;z-index:1" onclick="createChar()">⚔ BEGIN QUEST</button>
+</div>
+
+<!-- ══════════════ HUB ══════════════ -->
+<div id="hubScreen" class="screen">
+  <div class="hub-head">
+    <div class="p-info">
+      <div class="p-av" id="pAv">⚔</div>
+      <div class="p-det"><h3 id="pName">Hero</h3><span id="pClass">Lv.1 Warrior</span></div>
+    </div>
+    <div class="res-bars">
+      <div class="mbar"><label>HP</label><div class="mbar-tr"><div class="mbar-f hpf" id="hHP" style="width:100%"></div></div><span id="hHPt">-</span></div>
+      <div class="mbar"><label>MP</label><div class="mbar-tr"><div class="mbar-f mpf" id="hMP" style="width:100%"></div></div><span id="hMPt">-</span></div>
+      <div class="mbar"><label>EXP</label><div class="mbar-tr"><div class="mbar-f expf" id="hEXP" style="width:0%"></div></div><span id="hEXPt">-</span></div>
+    </div>
+    <div class="gold-d">💰 <span id="hGold">0</span></div>
+  </div>
+  <div class="hub-nav">
+    <button class="nb on" onclick="swPanel('dungeon',this)">🏰 DUNGEON</button>
+    <button class="nb"    onclick="swPanel('stats',this)">📊 STATS</button>
+    <button class="nb"    onclick="swPanel('weapons',this)">⚔️ WEAPONS</button>
+    <button class="nb"    onclick="swPanel('skills',this)">✨ SKILLS</button>
+    <button class="nb"    onclick="swPanel('shop',this)">🛒 SHOP</button>
+    <button class="nb"    onclick="swPanel('quest',this)">📜 QUESTS</button>
+    <button class="nb"    onclick="swPanel('guild',this)">🛡️ GUILD</button>
+    <button class="nb" id="navAdmin" style="display:none;color:var(--gold);border-color:var(--gold)" onclick="swPanel('admin',this)">⚙️ ADMIN</button>
+    <button class="nb btn-red" style="margin-left:auto" onclick="doLogout()">EXIT</button>
+  </div>
+  <div class="hub-body">
+    <div id="pDungeon" class="panel on">
+      <div class="sec-head"><h2>🏰 SELECT DUNGEON</h2><div class="sec-div"></div></div>
+      <div class="dng-grid" id="dngList"></div>
+    </div>
+    <div id="pStats" class="panel">
+      <div class="sec-head"><h2>📊 CHARACTER STATS</h2><div class="sec-div"></div><span id="statGender" style="font-size:.78rem;color:var(--cyan)"></span></div>
+      <div class="exp-card">
+        <div style="display:flex;justify-content:space-between;font-size:.82rem">
+          <span>Level <span id="lvDisp" style="color:var(--gold);font-weight:900">1</span> / <span style="color:var(--dim)">100</span></span>
+          <span id="expDisp" style="color:var(--dim)">0/100 EXP</span>
+        </div>
+        <div class="exp-bar-big"><div class="exp-fill-big" id="expBig" style="width:0%"></div></div>
+        <div style="font-size:.7rem;color:var(--cyan)">Next level: <span id="expLeft">100</span> EXP</div>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="alloc-box">
+        <h3>⚡ STAT POINTS: <span id="spDisp" style="color:var(--cyan)">0</span></h3>
+        <div id="statRows"></div>
+      </div>
+    </div>
+    <div id="pWeapons" class="panel">
+      <div class="sec-head"><h2>⚔️ WEAPONS</h2><div class="sec-div"></div></div>
+      <div class="wpn-grid" id="wpnGrid"></div>
+    </div>
+    <div id="pSkills" class="panel">
+      <div class="sec-head"><h2>✨ SKILLS</h2><div class="sec-div"></div></div>
+      <div id="skCon"></div>
+    </div>
+    <div id="pShop" class="panel">
+      <div class="sec-head"><h2>🛒 SHOP</h2><div class="sec-div"></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;flex-wrap:wrap;gap:.5rem">
+        <span style="font-size:.82rem;color:var(--dim)">💰 Gold: <b style="color:var(--gold)" id="shopGoldDisp">0</b></span>
+        <div style="font-size:.7rem;color:var(--dim)">Q = use item in battle</div>
+      </div>
+      <div style="margin-bottom:1.1rem">
+        <div style="font-size:.76rem;color:var(--cyan);margin-bottom:.5rem">📦 YOUR ITEMS</div>
+        <div id="invDisplay" style="display:flex;gap:.45rem;flex-wrap:wrap;min-height:38px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.65rem"></div>
+      </div>
+      <div id="shopGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:.8rem"></div>
+    </div>
+    <div id="pQuest" class="panel">
+      <div class="sec-head"><h2>📜 QUESTS</h2><div class="sec-div"></div></div>
+      <div id="qCon"></div>
+    </div>
+    <div id="pGuild" class="panel">
+      <div class="sec-head"><h2>🛡️ GUILD</h2><div class="sec-div"></div></div>
+      <div id="guildCon"></div>
+    </div>
+    <div id="pAdmin" class="panel"></div>
+  </div>
+</div>
+
+<!-- ══════════════ GAME SCREEN ══════════════ -->
+<div id="gameScreen" class="screen">
+  <div class="g-wrap" id="gWrap">
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="hud-top">
+      <div class="stat-hud-card">
+        <div class="shc-row">
+          <span class="shc-icon">❤️</span>
+          <div class="shc-bar-wrap"><div class="shc-bar"><div class="shc-fill hpf" id="gHP" style="width:100%"></div></div></div>
+          <span class="shc-val" id="gHPt">-</span>
+        </div>
+        <div class="shc-row">
+          <span class="shc-icon">🔮</span>
+          <div class="shc-bar-wrap"><div class="shc-bar"><div class="shc-fill mpf" id="gMP" style="width:100%"></div></div></div>
+          <span class="shc-val" id="gMPt">-</span>
+        </div>
+        <div class="shc-row">
+          <span class="shc-icon">⭐</span>
+          <div class="shc-bar-wrap"><div class="shc-bar"><div class="shc-fill expf" id="gEXP" style="width:0%"></div></div></div>
+          <span class="shc-lv" id="gLv">Lv.1</span>
+        </div>
+      </div>
+      <div class="floor-lbl" id="floorLbl">Floor 1</div>
+      <div class="hud-topright">
+        <button class="pause-btn" onclick="openPause()" title="Pause (Esc)">⏸</button>
+        <canvas id="mmCanvas" width="88" height="58"></canvas>
+      </div>
+    </div>
+
+    <div class="ctrl-hint">WASD Move · F Atk · E Dodge · 1/2 Skill · Q Item · Esc Pause</div>
+
+    <!-- Bottom controls: main row (joystick + combat zone), item strip below it -->
+    <div class="hud-bottom">
+      <div class="hud-bottom-main">
+        <div class="v-ctrl">
+          <div class="joy-out" id="jOut"><div class="joy-in" id="jIn"></div></div>
+        </div>
+        <div class="combat-zone" id="combatZone">
+          <div class="dg-btn" onclick="doDodge()">💨</div>
+          <div class="atk-btn" id="atkBtn" onclick="doAtk()">⚔</div>
+        </div>
+      </div>
+      <div class="item-bar-row" id="itemBar">
+        <span class="ibc-label">ITEMS</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODALS ══════════════ -->
+
+<!-- PRE-BOSS WARNING (FIX #1: shown BEFORE teleport) -->
+<div class="modal-ov" id="mPreBoss">
+  <div class="modal">
+    <div class="boss-warn">
+      <div style="font-size:2.5rem;margin-bottom:.5rem">⚠️</div>
+      <div style="color:var(--red);font-weight:900;font-size:1rem;margin-bottom:.5rem">BOSS ROOM AHEAD!</div>
+      <div style="font-size:.86rem;color:var(--gold);font-weight:700;margin-bottom:.3rem" id="preBossName">Boss</div>
+      <div style="font-size:.78rem;color:var(--dim)">
+        HP: <b style="color:var(--red2)" id="preBossHP">???</b> ·
+        ATK: <b style="color:var(--red2)" id="preBossAtk">???</b>
+      </div>
+    </div>
+    <p style="font-size:.8rem;color:var(--dim);margin-bottom:1rem;text-align:center">Make sure you're prepared before entering!</p>
+    <button class="btn-main" onclick="confirmEnterBoss()" style="background:linear-gradient(135deg,#660000,#cc0000);color:#fff">⚔ ENTER BOSS ROOM</button>
+    <button class="btn-sec" onclick="declineEnterBoss()" style="margin-top:.5rem">← STAY HERE</button>
+  </div>
+</div>
+
+<!-- PAUSE MODAL -->
+<div class="modal-ov" id="mPause">
+  <div class="modal pause-modal">
+    <div class="pause-header">
+      <span class="pause-icon">⏸</span>
+      <div>
+        <div class="pause-title" id="pauseDungeonName">Dark Cave</div>
+        <div class="pause-sub" id="pauseFloor">Floor 1 / 6</div>
+      </div>
+    </div>
+    <div class="pause-player">
+      <div class="pause-plname" id="pauseLv">Lv.1 Hero</div>
+      <div class="pause-statrow">
+        <span>❤️ HP</span>
+        <div class="pause-bar"><div class="shc-fill hpf" id="pauseHPBar" style="width:100%"></div></div>
+        <span id="pauseHP" class="pause-val">-</span>
+      </div>
+      <div class="pause-statrow">
+        <span>🔮 MP</span>
+        <div class="pause-bar"><div class="shc-fill mpf" id="pauseMPBar" style="width:100%"></div></div>
+        <span id="pauseMP" class="pause-val">-</span>
+      </div>
+    </div>
+    <div class="pause-tip">💡 Game paused — all actions frozen</div>
+    <button class="btn-main" onclick="resumeGame()" style="margin-bottom:.7rem">▶ RESUME</button>
+    <button class="btn-sec"  onclick="retreatFromPause()">🏠 RETURN TO HUB</button>
+  </div>
+</div>
+
+<!-- ROOM CLEARED -->
+<div class="modal-ov" id="mClear">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:2.2rem;margin-bottom:.5rem" id="mClrIcon">🎉</div>
+    <div class="modal-ttl" id="mClrTtl">Room Cleared!</div>
+    <div id="mClrRew" style="margin-bottom:1.5rem;font-size:.85rem;color:var(--dim);line-height:1.8"></div>
+    <button class="btn-main" onclick="afterClear()">CONTINUE ▶</button>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div class="modal-ov" id="mDead">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:3rem;margin-bottom:.5rem">💀</div>
+    <div class="modal-ttl">DEFEATED!</div>
+    <p id="mDeadTxt" style="color:var(--dim);font-size:.82rem;margin-bottom:1.5rem">You were defeated.</p>
+    <button class="btn-main" onclick="respawn()" style="margin-bottom:.8rem">🔄 RESPAWN (–20% HP)</button>
+    <button class="btn-sec"  onclick="closeMod('mDead');retreatHub()">🏠 RETREAT TO HUB</button>
+  </div>
+</div>
+
+<!-- CUSTOM CONFIRM -->
+<div class="modal-ov" id="mConfirm">
+  <div class="modal" style="text-align:center;max-width:320px">
+    <div class="modal-ttl" id="cfmTitle">Confirm</div>
+    <p id="cfmMsg" style="color:var(--dim);font-size:.85rem;margin-bottom:1.5rem"></p>
+    <div style="display:flex;gap:.7rem">
+      <button class="btn-sec" style="flex:1" onclick="cfmDoCancel()" id="cfmCancel">Cancel</button>
+      <button class="btn-main" style="flex:1;margin-top:0" onclick="cfmDoOK()" id="cfmOK">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM PROMPT -->
+<div class="modal-ov" id="mPrompt">
+  <div class="modal" style="text-align:center;max-width:320px">
+    <div class="modal-ttl" id="promptTitle">Enter text</div>
+    <input id="promptInp" class="inp" style="margin-bottom:1.2rem;text-align:center" type="text">
+    <div style="display:flex;gap:.7rem">
+      <button class="btn-sec" style="flex:1" onclick="promptDoCancel()">Cancel</button>
+      <button class="btn-main" style="flex:1;margin-top:0" onclick="promptDoOK()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- JS -->
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/perf.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/particles.js"></script>
+<script src="js/level.js"></script>
+<script src="js/monsters.js"></script>
+<script src="js/dungeon.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/weapon_visual.js"></script>
+<script src="js/mother_rosario.js"></script>
+<script src="js/shop.js"></script>
+<script src="js/guild.js"></script>
+<script src="js/quests.js"></script>
+<script src="js/api_connector.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/character.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/input.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+<script>seedAdmin();</script>
+</body>
+</html>
