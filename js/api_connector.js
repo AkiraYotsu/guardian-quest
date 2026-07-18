@@ -4,7 +4,7 @@
 // Backend: Express + Mongoose running on localhost:3000
 // ═══════════════════════════════════════════════════════════════
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'https://customise-phase-address-springfield.trycloudflare.com';
 
 const MongoDB = {
   // ── Check if backend is reachable ──────────────────────────
