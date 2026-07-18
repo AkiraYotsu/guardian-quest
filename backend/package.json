@@ -1,0 +1,14 @@
+{
+  "name": "guardian-quest-backend",
+  "version": "1.0.0",
+  "description": "Guardian Quest RPG — MongoDB REST API Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
